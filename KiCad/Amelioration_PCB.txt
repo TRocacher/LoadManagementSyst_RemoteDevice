@@ -1,0 +1,17 @@
+ROUTAGE
+Revoir la masse, ilot central
+Revoir limites, et pads externes : augmenter le rayon de courbure
+pads apparents, option...
+erreur switch
+pb alignement module HF
+élargir empreinte SOIC ? I2C 
+Superposer Xbee + RT606 ?
+
+!! anti inversion à PMOS sur les piles !!
+!! pull up du l'I2C 10k
+
+!! pb 32768 externe, RC interne très peu précis !!
+
+Passer le capteur de température en 3V en le connectant sur le SW du boost (en amont).
+Ou en aval en permanence ?
+Mettre un jump ? -> pour l'abricotier !
