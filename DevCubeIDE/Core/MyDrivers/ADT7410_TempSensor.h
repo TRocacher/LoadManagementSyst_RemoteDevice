@@ -3,6 +3,31 @@
  *
  *  Created on: 21 avr. 2022
  *      Author: trocache
+ *
+ *
+ *      NB : Please check the i2c driver used in CubeMx. It must match the I2C_HandleTypeDef declared as
+ *      externe at the begining of this header file.
+ *      Default used : hi2c1
+ *
+ *      *****************************************
+ *      Periheral used :
+ *      I2C (I2C1)
+ *
+ *      *****************************************
+ *      Peripheral initialisation :
+ *      done with CubeMx, see main.c
+ *
+ *      *****************************************
+ *      Interuption : None
+ *
+ *
+ *
+ *      *****************************************
+ *      Functions :
+ *      void ADT7410_Init(void) - Prepare ADT7410 Device in shutdown mode, 16bits (LSB = 7.8125m°C)
+ *      int ADT7410_GetTemp_fract_9_7(void) - blocking function (delay systick 250ms). Return Temperature
+ *      on a 16 bits value, fractional format 9.7, °C.
+ *
  */
 
 #ifndef MYDRIVERS_ADT7410_TEMPSENSOR_H_
@@ -55,6 +80,14 @@ extern I2C_HandleTypeDef hi2c1;
 #define ConfReg_Reso_16 (1<<7)
 
 
+
+/**************************************************************
+		Module Functions
+
+**************************************************************/
+
+void ADT7410_Init(void);
+short int ADT7410_GetTemp_fract_9_7(void);
 
 
 #endif /* MYDRIVERS_ADT7410_TEMPSENSOR_H_ */

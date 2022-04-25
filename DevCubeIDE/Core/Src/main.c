@@ -22,12 +22,16 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "ADT7410_TempSensor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+short int Temp1_E;
+short int Temp1_F;
+short int Temp2_E;
+short int Temp2_F;
+short int Temp1,Temp2;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -101,6 +105,14 @@ int main(void)
   MX_I2C1_Init();
   MX_RTC_Init();
   /* USER CODE BEGIN 2 */
+  ADT7410_Init();
+  Temp1=ADT7410_GetTemp_fract_9_7();
+  Temp1_E =Temp1>>7;
+  Temp1_F =Temp1 & 0x003F;
+
+  Temp2=ADT7410_GetTemp_fract_9_7();
+  Temp2_E =Temp2>>7;
+  Temp2_F =Temp2 & 0x003F;
 
   /* USER CODE END 2 */
 
@@ -109,7 +121,15 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+	  Temp1=ADT7410_GetTemp_fract_9_7();
+	  Temp1_E =Temp1>>7;
+	  Temp1_F =(Temp1 & 0x003F)*7.8125; // partie fract en 1000 éme
 
+	  Temp2=ADT7410_GetTemp_fract_9_7();
+	  Temp2_E =Temp2>>7;
+	  Temp2_F =(Temp2 & 0x003F)*7.8125;
+
+	  HAL_Delay(500);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -404,14 +424,14 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_14, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_14, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_4, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PC14 */
   GPIO_InitStruct.Pin = GPIO_PIN_14;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
