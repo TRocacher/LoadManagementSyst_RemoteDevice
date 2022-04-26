@@ -1,0 +1,135 @@
+Aide sur la RTC (RM0377 Rev10)
+NB il existe un exemple d'init, voir le RM page 869 (copié fin de cette page...)
+
+
+********* Generalités RTC *******************
+une fois le reset RTC fait, la RTC ne s'arrête jamais (sauf coupure Vdd)
+
+********* Démarrage RTC *******************
+Voir chapitre Pwr
+- Valider Clk du periph PWR, PWREN de APN1ENR
+- DBP = 1 (Disable Backup Protection), PWR_CR
+- Choisir RTC Clk source, RTCSel(1:0) ds RCC_CSR
+- Valider RCC clk : RTCEN =1 ds RCC CSR
+
+
+
+
+********* CLK ******************************
+L'horloge du module RTC est fRTCCLK, pour nous, dérive de LSI (Low Speed Internal)
+LSI vaut 38kHz, en fait en usine on garantit [26kHz-56kHz], 
+ [-10% et +4%] de dérive en fct de la température sur la fréquence réelle.
+  -> LA FREQUENCE N EST PAS FIABLE, IL FAUDRA RECALIBRER A CHAQUE TRANSFERT DE DATA vers le centre
+ 
+ La fréquence de la RTC est fCK_SPRE = fRTCCLK /[(PREDIV_S+1)(PREDIV_A+1)]
+ NB : pour économiser NRJ, choisir PREDIV_A le plus grand possible.
+ 
+ 
+ 
+ ****** Time Register and Shadow Register ***********
+Timer Reg, TR = x..x PM HT HU MNT MNU ST SU (T pour Ten, U pour Unit)
+Date Reg, DR =  x..x YT YU WDU MT MU DT DU (WDU = 1 à 7 pour Lundi à Dimanche)
+
+L'accès à ces deux registres se fait via shadow register (synchronisé sur APB Clock) par défaut.
+-> si BYSHAD = 0 passage par shadow reg (default), sinon BYSHAD = 1, écriture directe ds les regs
+(voir errata si pb à ce niveau).
+
+
+********** System RESET et Domain RESET *************************
+NB : la pin NRST conduit à la fois à un system reset et Backup Domain reset !
+Donc l'appui brutal sur le BP ou reprise alim conduit à un reset général.
+On peut affiner par logiciel
+
+Le system Reset (batterie débranchée ou reset physique)
+-> RTC_TR (Timer reg) et RTC_DR (Date Reg) mis à 0 ainsi que quelques bits du RTC_CR
+Les autres regs sont sauvegardés (dont Backup domainn Regs, Alarm A/B...
+
+Le Domain Reset
+Les autres sont initialisés, mais pas le TR et DR
+
+
+
+******* Initialisation/ mise à l'heure  *************************
+Au SYSTEM RESET ou à la mise sous tension, la RTC est protégée en écriture.
+Le bit DBP (Disable BackUp Domain Protection) de PWR_CR est en effet à 0.
+Mettre DBP à 1 pour écrire dans les TR/DR ou backupDomain Regs.
+
+Au RTC DOMAIN RESET la RTC est aussi protégée. Pour lever la protection, il faut
+écrire 0xCA puis 0x53 dans le registres RTC_WPR.
+
+Pour programmer l'heure :
+1. Placer bit INIT à 1 (reg RTC_ISR) - blocage cpteur
+2. Check Flag INITF ==1 (reg RTC_ISR)
+3. Set Prescaler Horloge
+4. Charger les TR et DR et format 12/24 (FMT bit RTC_CR)
+5. Placer le bit INIT à 0 pour sortir du mode - reprise cpteur
+
+********** Programmer une alarme *********************
+L'alarme A ou B repose sur la programmation des mêmes types de registre
+que ceux de l'heure. 
+registre ALRMAR . Il contient Date (soit Lundi/Dim soit 1/31), heure, minute, seconde.
+Chacun des champs peut contribuer ou pas au match de l'alarme.
+
+Procédure :
+1. ALRAE de RTC_CR pour disable Alarm A
+2. Programmer les registres ALRMAR et ALRMASSR/RTC
+3. ALRAE de RTC_CR pour enable Alarm A
+
+********* Lecture heure / date ********************
+Voir page 551, pb low power / sleep à comprendre, et shadow reg.
+... A copléter
+
+
+
+
+
+
+
+
+CODE EXAMPLES FROM RM
+----------------------------------------
+RTC calendar configuration code example
+/* (1) Write access for RTC registers */
+/* (2) Enable init phase */
+/* (3) Wait until it is allow to modify RTC register values */
+/* (4) set prescaler, 40kHz/64 => 625Hz, 625Hz/625 => 1Hz */
+/* (5) New time in TR */
+/* (6) Disable init phase */
+/* (7) Disable write access for RTC registers */
+RTC->WPR = 0xCA; /* (1) */
+RTC->WPR = 0x53; /* (1) */
+RTC->ISR = RTC_ISR_INIT; /* (2) */
+while((RTC->ISR & RTC_ISR_INITF)!=RTC_ISR_INITF) /* (3) */
+{
+/* add time out here for a robust application */
+}
+RTC->PRER = 0x003F0270; /* (4) */
+RTC->TR = RTC_TR_PM | Time; /* (5) */
+RTC->ISR =~ RTC_ISR_INIT; /* (6) */Code examples RM0377
+870/905 RM0377 Rev 10
+RTC->WPR = 0xFE; /* (7) */
+RTC->WPR = 0x64; /* (7) */
+
+
+
+----------------------------------------
+RTC alarm configuration code example
+/* (1) Write access for RTC registers */
+/* (2) Disable alarm A to modify it */
+/* (3) Wait until it is allow to modify alarm A value */
+/* (4) Modify alarm A mask to have an interrupt each 1Hz */
+/* (5) Enable alarm A and alarm A interrupt */
+/* (6) Disable write access */
+RTC->WPR = 0xCA; /* (1) */
+RTC->WPR = 0x53; /* (1) */
+RTC->CR &=~ RTC_CR_ALRAE; /* (2) */
+while((RTC->ISR & RTC_ISR_ALRAWF) != RTC_ISR_ALRAWF) /* (3) */
+{
+/* add time out here for a robust application */
+}
+RTC->ALRMAR = RTC_ALRMAR_MSK4 | RTC_ALRMAR_MSK3 | RTC_ALRMAR_MSK2 |
+RTC_ALRMAR_MSK1; /* (4) */
+RTC->CR = RTC_CR_ALRAIE | RTC_CR_ALRAE; /* (5) */
+RTC->WPR = 0xFE; /* (6) */
+RTC->WPR = 0x64; /* (6) */
+ 

@@ -27,11 +27,23 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+
+// **********************************
+// ** Temperature / I2C1 / ADT7140 **
+// **********************************
 short int Temp1_E;
 short int Temp1_F;
 short int Temp2_E;
 short int Temp2_F;
 short int Temp1,Temp2;
+
+// **********************************
+// ** RTC my Variable for HAL Fct  **
+// **********************************
+RTC_TimeTypeDef My_HAL_RTC_Time;
+
+
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -105,6 +117,11 @@ int main(void)
   MX_I2C1_Init();
   MX_RTC_Init();
   /* USER CODE BEGIN 2 */
+
+  // ******************************************
+  // ** Temperature / I2C1 / ADT7140 test OK **
+  // ******************************************
+
   ADT7410_Init();
   Temp1=ADT7410_GetTemp_fract_9_7();
   Temp1_E =Temp1>>7;
@@ -114,22 +131,37 @@ int main(void)
   Temp2_E =Temp2>>7;
   Temp2_F =Temp2 & 0x003F;
 
+
+  // **********************************
+  // ** RTC HAL Test  				 **
+  // **********************************
+  My_HAL_RTC_Time.Hours=16*1+8;
+  My_HAL_RTC_Time.Minutes=16*0+9;
+  My_HAL_RTC_Time.Seconds=0;
+  My_HAL_RTC_Time.TimeFormat=RTC_HOURFORMAT12_PM;
+  //My_HAL_RTC_Time.DayLightSaving=RTC_DAYLIGHTSAVING_NONE;
+  My_HAL_RTC_Time.StoreOperation=RTC_STOREOPERATION_RESET;
+  HAL_RTC_SetTime(&hrtc, &My_HAL_RTC_Time, RTC_FORMAT_BCD);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
+	  // get temperature
 	  Temp1=ADT7410_GetTemp_fract_9_7();
 	  Temp1_E =Temp1>>7;
-	  Temp1_F =(Temp1 & 0x003F)*7.8125; // partie fract en 1000 éme
+	  Temp1_F =Temp1 & 0x003F;
 
-	  Temp2=ADT7410_GetTemp_fract_9_7();
-	  Temp2_E =Temp2>>7;
-	  Temp2_F =(Temp2 & 0x003F)*7.8125;
+	  // get time
+	  HAL_RTC_GetTime (&hrtc, &My_HAL_RTC_Time, RTC_FORMAT_BCD);
+	  // delay 750ms
+	  HAL_Delay(750);
 
-	  HAL_Delay(500);
+
+    /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -311,7 +343,7 @@ static void MX_RTC_Init(void)
   hrtc.Instance = RTC;
   hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
   hrtc.Init.AsynchPrediv = 127;
-  hrtc.Init.SynchPrediv = 255;
+  hrtc.Init.SynchPrediv = 289;
   hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
   hrtc.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
   hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
@@ -359,12 +391,6 @@ static void MX_RTC_Init(void)
   sAlarm.AlarmDateWeekDay = 0x1;
   sAlarm.Alarm = RTC_ALARM_A;
   if (HAL_RTC_SetAlarm(&hrtc, &sAlarm, RTC_FORMAT_BCD) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Enable the WakeUp
-  */
-  if (HAL_RTCEx_SetWakeUpTimer(&hrtc, 0, RTC_WAKEUPCLOCK_RTCCLK_DIV16) != HAL_OK)
   {
     Error_Handler();
   }
