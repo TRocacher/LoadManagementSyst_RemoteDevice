@@ -18,7 +18,7 @@
  *      done with CubeMx, see main.c
  *
  *      *****************************************
- *      Interuption : None
+ *      Interrupts : None
  *
  *
  *

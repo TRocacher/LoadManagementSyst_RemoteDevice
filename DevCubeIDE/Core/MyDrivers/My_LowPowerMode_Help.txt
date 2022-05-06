@@ -1,0 +1,48 @@
+Aide sur les Low PowerMode (RM0377 Rev10) + Datasheet (DS10780 Rev 6) + AN4445
+
+NB : l'ADC est l'un des composants qui consomme le plus !
+
+
+********* Generalités Power Mode *******************
+Range 1 : CPU -> 32MHz
+Range 2 : CPU -> 16MHz
+Range 3 : CPU -> 4.2MHz
+
+
+Run Mode  : 5mA Range 1 / 330µA Range 3
+Sleep Mode : Le CPU seul est bloqué, tous les périph fonctionnent
+Low Power run Mode : La fréquence est limitée
+Low Power sleep mode : 
+Stop Mode With RTC : 
+Stand By Mode with RTC : seuls LSI/LSE tournent , on descend en dessous du µA.
+
+
+
+********* Standby Mode Periph *******************
+voir p 157 RM
+Tout est off (CPU, RAM, HSE etc...)
+Sauf :
+- RTC Registers, 
+- Back up Domain Regs
+- LSE/LSI
+
+********* Entering Standby Mode *******************
+utiliser l'instruction ASM WFI (Wait for interrupt)
+Avec, avant l'exécution :
+- bit SLEEPDEEP = 1 (Core M0, reg SCR - System Control_Reg du core-)
+- bit PDDS (Pwr Down Deep Sleep) du reg PWR_CR
+- pas d'IT en cours
+- WUF = 0 (Wake Up Flag), il est mis à 1 au réveil (alarm RTC, WakeupRTC...) mis à 0 via bit CWUF (Clear WUF)
+- Le RTC flag correspondant à la source du revéil au niveau RTC doit être à 0
+et
+- RTCEN = 1 reg RCC_CSR
+- LSION = 1 reg RCC_CSR
+
+
+********* Exiting Standby Mode *******************
+- Sur un reset hard
+- sur IT waleup. Dès lors tout se passe comme si on avait eu un reset hard.
+On peut savoir si on était en standby mode par le bit SBF vaut 1 - reg PWR_CSR 
+SBF passe à 0 sur un reset hard ou bien par mise à un du bit CSBF - reg PWR_CR
+
+

@@ -15,3 +15,9 @@ Superposer Xbee + RT606 ?
 Passer le capteur de température en 3V en le connectant sur le SW du boost (en amont).
 Ou en aval en permanence ?
 Mettre un jump ? -> pour l'abricotier !
+
+
+Debugger SW
+- Ajouter nReset sur le connecteur SWD
+- Ajouter les résistances de 22 Ohm ? -> refaire la manip Nucleo-Nucleo pour voir
+- Enlever la pull up reset ? 

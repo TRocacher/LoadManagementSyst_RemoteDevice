@@ -16,6 +16,8 @@
   *
   ******************************************************************************
   */
+
+
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -36,11 +38,6 @@ short int Temp1_F;
 short int Temp2_E;
 short int Temp2_F;
 short int Temp1,Temp2;
-
-// **********************************
-// ** RTC my Variable for HAL Fct  **
-// **********************************
-RTC_TimeTypeDef My_HAL_RTC_Time;
 
 
 
@@ -65,7 +62,7 @@ RTC_HandleTypeDef hrtc;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-
+static void SystemPower_Config(void);
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -90,9 +87,15 @@ static void MX_RTC_Init(void);
   */
 int main(void)
 {
+
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
+  // =============================================================================
+  // ******************************************
+  // ** POR Reset = reset Hard
+  // ******************************************
+  // =============================================================================
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -107,6 +110,8 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
+  // pour pouvoir débugger en mode standby...
+  DBGMCU->CR|=DBGMCU_CR_DBG_STANDBY;
 
   /* USER CODE END SysInit */
 
@@ -116,7 +121,19 @@ int main(void)
   MX_USART2_UART_Init();
   MX_I2C1_Init();
   MX_RTC_Init();
+
+
   /* USER CODE BEGIN 2 */
+   SystemPower_Config();
+  /* Check and handle if the system was resumed from StandBy mode */
+  if(__HAL_PWR_GET_FLAG(PWR_FLAG_SB) != RESET)
+  {
+    /* Clear Standby flag */
+    __HAL_PWR_CLEAR_FLAG(PWR_FLAG_SB);
+  }
+
+
+
 
   // ******************************************
   // ** Temperature / I2C1 / ADT7140 test OK **
@@ -127,21 +144,17 @@ int main(void)
   Temp1_E =Temp1>>7;
   Temp1_F =Temp1 & 0x003F;
 
-  Temp2=ADT7410_GetTemp_fract_9_7();
-  Temp2_E =Temp2>>7;
-  Temp2_F =Temp2 & 0x003F;
+  // test
+  HAL_GPIO_TogglePin(GPIOA, 1);
 
-
-  // **********************************
-  // ** RTC HAL Test  				 **
-  // **********************************
-  My_HAL_RTC_Time.Hours=16*1+8;
-  My_HAL_RTC_Time.Minutes=16*0+9;
-  My_HAL_RTC_Time.Seconds=0;
-  My_HAL_RTC_Time.TimeFormat=RTC_HOURFORMAT12_PM;
-  //My_HAL_RTC_Time.DayLightSaving=RTC_DAYLIGHTSAVING_NONE;
-  My_HAL_RTC_Time.StoreOperation=RTC_STOREOPERATION_RESET;
-  HAL_RTC_SetTime(&hrtc, &My_HAL_RTC_Time, RTC_FORMAT_BCD);
+  // ******************************************
+  // ** Endormissement Stanby mode			 **
+  // ******************************************
+  /* Clear the WAKEUPTIMER interrupt pending bit */
+  //__HAL_RTC_WAKEUPTIMER_CLEAR_FLAG(hrtc, RTC_FLAG_WUTF);
+  // clear global
+  __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+  //HAL_PWR_EnterSTANDBYMode();
 
   /* USER CODE END 2 */
 
@@ -149,16 +162,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  // get temperature
-	  Temp1=ADT7410_GetTemp_fract_9_7();
-	  Temp1_E =Temp1>>7;
-	  Temp1_F =Temp1 & 0x003F;
-
-	  // get time
-	  HAL_RTC_GetTime (&hrtc, &My_HAL_RTC_Time, RTC_FORMAT_BCD);
-	  // delay 750ms
-	  HAL_Delay(750);
-
 
     /* USER CODE END WHILE */
 
@@ -331,10 +334,6 @@ static void MX_RTC_Init(void)
 
   /* USER CODE END RTC_Init 0 */
 
-  RTC_TimeTypeDef sTime = {0};
-  RTC_DateTypeDef sDate = {0};
-  RTC_AlarmTypeDef sAlarm = {0};
-
   /* USER CODE BEGIN RTC_Init 1 */
 
   /* USER CODE END RTC_Init 1 */
@@ -352,45 +351,9 @@ static void MX_RTC_Init(void)
   {
     Error_Handler();
   }
-
-  /* USER CODE BEGIN Check_RTC_BKUP */
-
-  /* USER CODE END Check_RTC_BKUP */
-
-  /** Initialize RTC and set the Time and Date
+  /** Enable the WakeUp
   */
-  sTime.Hours = 0x0;
-  sTime.Minutes = 0x0;
-  sTime.Seconds = 0x0;
-  sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-  sTime.StoreOperation = RTC_STOREOPERATION_RESET;
-  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sDate.WeekDay = RTC_WEEKDAY_MONDAY;
-  sDate.Month = RTC_MONTH_JANUARY;
-  sDate.Date = 0x1;
-  sDate.Year = 0x0;
-
-  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Enable the Alarm A
-  */
-  sAlarm.AlarmTime.Hours = 0x0;
-  sAlarm.AlarmTime.Minutes = 0x0;
-  sAlarm.AlarmTime.Seconds = 0x0;
-  sAlarm.AlarmTime.SubSeconds = 0x0;
-  sAlarm.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-  sAlarm.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
-  sAlarm.AlarmMask = RTC_ALARMMASK_NONE;
-  sAlarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL;
-  sAlarm.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
-  sAlarm.AlarmDateWeekDay = 0x1;
-  sAlarm.Alarm = RTC_ALARM_A;
-  if (HAL_RTC_SetAlarm(&hrtc, &sAlarm, RTC_FORMAT_BCD) != HAL_OK)
+  if (HAL_RTCEx_SetWakeUpTimer_IT(&hrtc, 10, RTC_WAKEUPCLOCK_CK_SPRE_16BITS) != HAL_OK)
   {
     Error_Handler();
   }
@@ -498,7 +461,17 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+static void SystemPower_Config(void)
+{
+  /* Enable Power Control clock */
+  __HAL_RCC_PWR_CLK_ENABLE();
 
+  /* Enable Ultra low power mode */
+  HAL_PWREx_EnableUltraLowPower();
+
+  /* Enable the fast wake up from Ultra low power mode */
+  HAL_PWREx_EnableFastWakeUp();
+}
 /* USER CODE END 4 */
 
 /**
