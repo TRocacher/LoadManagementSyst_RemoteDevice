@@ -29,6 +29,10 @@
 #include "stm32l4xx_ll_exti.h"
 #include "stm32l4xx_ll_pwr.h"
 #include "stm32l4xx_ll_cortex.h"
+
+// ajout headers
+#include "stm32l4xx_ll_RTC.h"
+
 #if defined(USE_FULL_ASSERT)
 #include "stm32_assert.h"
 #endif /* USE_FULL_ASSERT */
@@ -68,6 +72,23 @@
                                                   LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTC, LL_SYSCFG_EXTI_LINE13);  \
                                                 } while(0)
 #define USER_BUTTON_IRQHANDLER                  EXTI15_10_IRQHandler
+
+
+
+
+
+#define NVIC_PRIORITYGROUP_0         ((uint32_t)0x00000007) /*!< 0 bit  for pre-emption priority,
+                                                                 4 bits for subpriority */
+#define NVIC_PRIORITYGROUP_1         ((uint32_t)0x00000006) /*!< 1 bit  for pre-emption priority,
+                                                                 3 bits for subpriority */
+#define NVIC_PRIORITYGROUP_2         ((uint32_t)0x00000005) /*!< 2 bits for pre-emption priority,
+                                                                 2 bits for subpriority */
+#define NVIC_PRIORITYGROUP_3         ((uint32_t)0x00000004) /*!< 3 bits for pre-emption priority,
+                                                                 1 bit  for subpriority */
+#define NVIC_PRIORITYGROUP_4         ((uint32_t)0x00000003) /*!< 4 bits for pre-emption priority,
+                                                                 0 bit  for subpriority */
+
+
 
 /* Exported macro ------------------------------------------------------------*/
 
