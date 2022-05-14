@@ -29,7 +29,19 @@ stm32l4xx_it.h
 OBJ 1 : on fait idem mais périodique avec le wakeup timer.
 OBJ 2 : faire tourner l'I2C en LL.
 
+
+****************************
 8d0b381 commit suivant
 OBJ 1 en cours, bac à sable ajouté pour récupérer des codes générés automatiquement Cube.
 /MyNucleoL476_StdByPower modifié, inspiré de RTC_ExitStandbyWithWakeUpTimer
 A faire : Bien lire et faire une synthèse sur wakeup RTC Standby
+
+****************************
+50abc65 commit suivant
+/ExploreCodeStdby / BacASable_LLFromCube
+				  / MyNucleoL476_StdByPower
+Programme opérationnel en standby mode !
+		* PWR reset : LED s'allume 5s
+		* nRST : LED s'allume 2s
+		* standby wake up : LED s'allume 200ms
+		

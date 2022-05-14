@@ -39,6 +39,8 @@ void     LED_Blinking(uint32_t Period);
 void     UserButton_Init(uint32_t Button_Mode);
 uint32_t UserButton_GetState(void);
 void     EnterStandbyMode(void);
+static void MX_GPIO_Init(void);
+
 
 /* Private functions ---------------------------------------------------------*/
 void SystemClock_Config(void);
@@ -57,17 +59,85 @@ int main(void)
 	  NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 	  /* From Cube : Configure the system clock */
 	  SystemClock_Config();
+	  /* From Cube : Configure GIPOA */
+	  MX_GPIO_Init();
+
 	  /* From Cube : Initialize all configured peripherals */
 	  MX_RTC_Init();
 
+
+	  // nRST from RunMode ? PINRST =1, SBF=0
+	  if ( ((RCC->CSR&RCC_CSR_PINRSTF) == RCC_CSR_PINRSTF) && ((PWR->SR1&PWR_SR1_SBF) != PWR_SR1_SBF))
+	  {
+		  // reset reset flag
+		  RCC->CSR|=RCC_CSR_RMVF;
+		  // Allumer LED durant 5s
+		  LL_GPIO_WriteOutputPort(LED2_GPIO_PORT, LED2_PIN);
+		  LL_mDelay(5000);
+	  }
+	  else if (((RCC->CSR&RCC_CSR_PINRSTF) == RCC_CSR_PINRSTF) &&((PWR->SR1&PWR_SR1_SBF) == PWR_SR1_SBF) )
+	  // nRST from stdby mode PINRST =1, SBF=1
+	  {
+		  // reset reset flag
+		  RCC->CSR|=RCC_CSR_RMVF;
+		  // clear SBF
+		  PWR->SCR|=PWR_SCR_CSBF;
+		  // Allumer LED durant 2s
+		  LL_GPIO_WriteOutputPort(LED2_GPIO_PORT, LED2_PIN);
+		  LL_mDelay(2000);
+	  }
+
+	  else // retour d'un standby mode par le WUTF  // PINRST =0, SBF=1
 	  // Allumer LED durant 200ms
-	  LL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
+	  {
+		  // clear SBF
+		  PWR->SCR|=PWR_SCR_CSBF;
+		  LL_GPIO_WriteOutputPort(LED2_GPIO_PORT, LED2_PIN);
+		  LL_mDelay(200);
+	  }
+
+
+
+	  LL_GPIO_WriteOutputPort(LED2_GPIO_PORT, LED2_PIN);
 	  LL_mDelay(200);
+ 	  EnterStandbyMode();
 
-
-
+ 	  // bug entrée Standby LED on
+	  LL_GPIO_WriteOutputPort(LED2_GPIO_PORT, LED2_PIN);
 
 	  while(1);
+
+}
+
+
+
+/** From Cube : Configuration depuis Cube LL
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_GPIO_Init(void)
+{
+
+  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  /* GPIO Ports Clock Enable */
+  LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOA);
+
+
+  /**/
+  LL_GPIO_ResetOutputPin(LED2_GPIO_PORT, LED2_PIN);
+
+
+
+
+  /**/
+  GPIO_InitStruct.Pin = LED2_PIN;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+  LL_GPIO_Init(LED2_GPIO_PORT, &GPIO_InitStruct);
 
 }
 
@@ -196,6 +266,7 @@ void EnterStandbyMode(void)
   /* Disable RTC registers write protection */
   LL_RTC_DisableWriteProtection(RTC);
 
+
   /* Enable wake up counter and wake up interrupt */
   /* Note: Periodic wakeup interrupt should be enabled to exit the device
      from low-power modes.*/
@@ -212,6 +283,7 @@ void EnterStandbyMode(void)
     */
   /* Reset Internal Wake up flag */
   LL_RTC_ClearFlag_WUT(RTC);
+
 
   /* Check that PWR Internal Wake-up is enabled */
   if (LL_PWR_IsEnabledInternWU() == 0)

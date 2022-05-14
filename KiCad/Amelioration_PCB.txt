@@ -6,6 +6,7 @@ erreur switch
 pb alignement module HF
 élargir empreinte SOIC ? I2C 
 Superposer Xbee + RT606 ?
+pas de pull up sur nRST
 
 !! anti inversion à PMOS sur les piles !!
 !! pull up du l'I2C 10k
@@ -16,6 +17,7 @@ Passer le capteur de température en 3V en le connectant sur le SW du boost (en 
 Ou en aval en permanence ?
 Mettre un jump ? -> pour l'abricotier !
 
+Filtrer VDDA
 
 Debugger SW
 - Ajouter nReset sur le connecteur SWD
