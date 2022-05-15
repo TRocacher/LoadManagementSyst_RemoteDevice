@@ -44,4 +44,16 @@ Programme opérationnel en standby mode !
 		* PWR reset : LED s'allume 5s
 		* nRST : LED s'allume 2s
 		* standby wake up : LED s'allume 200ms
+
+
+****************************
+349ff09  commit suivant		
+/ExploreCodeStdby / Remote_L041_StdByPower
+
+Même programme sur 32L041F6P7
+Programme opérationnel en standby mode !
+		* PWR reset : PA1 (LEDIR) on 6s
+		* nRST : PA1 (LEDIR) on  3s
+		* standby wake up : PA1 (LEDIR) on  1s
 		
+Le tout sur le proto n°1 fait pas José.
