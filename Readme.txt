@@ -31,13 +31,13 @@ OBJ 2 : faire tourner l'I2C en LL.
 
 
 ****************************
-8d0b381 commit suivant
+50abc65 
 OBJ 1 en cours, bac à sable ajouté pour récupérer des codes générés automatiquement Cube.
 /MyNucleoL476_StdByPower modifié, inspiré de RTC_ExitStandbyWithWakeUpTimer
 A faire : Bien lire et faire une synthèse sur wakeup RTC Standby
 
 ****************************
-50abc65 commit suivant
+349ff09
 /ExploreCodeStdby / BacASable_LLFromCube
 				  / MyNucleoL476_StdByPower
 Programme opérationnel en standby mode !
@@ -47,7 +47,7 @@ Programme opérationnel en standby mode !
 
 
 ****************************
-349ff09  commit suivant		
+35642cd		
 /ExploreCodeStdby / Remote_L041_StdByPower
 
 Même programme sur 32L041F6P7
@@ -57,3 +57,16 @@ Programme opérationnel en standby mode !
 		* standby wake up : PA1 (LEDIR) on  1s
 		
 Le tout sur le proto n°1 fait pas José.
+
+
+****************************
+35642cd   commit suivant
+/ExploreCodeStdby / Remote_L041_StdByPower
+
+Le programme fais une émission en boucle UART via FSK. Fonctionne à 38400 Bds, test en réception avec la carte tecom 103 de 4IS.
+OK.
+A faire réception.
+
+
+
+	

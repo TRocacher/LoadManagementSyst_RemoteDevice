@@ -23,8 +23,13 @@
 #ifndef __MAIN_H
 #define __MAIN_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Includes ------------------------------------------------------------------*/
+#include "stm32l0xx_ll_adc.h"
+#include "stm32l0xx_ll_i2c.h"
 #include "stm32l0xx_ll_crs.h"
 #include "stm32l0xx_ll_rcc.h"
 #include "stm32l0xx_ll_bus.h"
@@ -35,13 +40,32 @@
 #include "stm32l0xx_ll_pwr.h"
 #include "stm32l0xx_ll_dma.h"
 #include "stm32l0xx_ll_rtc.h"
+#include "stm32l0xx_ll_usart.h"
 #include "stm32l0xx_ll_gpio.h"
 
+#if defined(USE_FULL_ASSERT)
+#include "stm32_assert.h"
+#endif /* USE_FULL_ASSERT */
 
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
 
+/* USER CODE END Includes */
 
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
 
+/* USER CODE END ET */
 
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
+
+/* USER CODE END EC */
+
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
+
+/* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
@@ -51,6 +75,22 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define nBoost_En_Pin LL_GPIO_PIN_14
+#define nBoost_En_GPIO_Port GPIOC
+#define CD_Pin LL_GPIO_PIN_15
+#define CD_GPIO_Port GPIOC
+#define TxCmde_Pin LL_GPIO_PIN_0
+#define TxCmde_GPIO_Port GPIOA
+#define LED_IR_Pin LL_GPIO_PIN_1
+#define LED_IR_GPIO_Port GPIOA
+#define RxCmde_Pin LL_GPIO_PIN_4
+#define RxCmde_GPIO_Port GPIOA
+#define User_BP_Pin LL_GPIO_PIN_5
+#define User_BP_GPIO_Port GPIOA
+#define INT_Pin LL_GPIO_PIN_7
+#define INT_GPIO_Port GPIOA
+#define CT_Pin LL_GPIO_PIN_1
+#define CT_GPIO_Port GPIOB
 #ifndef NVIC_PRIORITYGROUP_0
 #define NVIC_PRIORITYGROUP_0         ((uint32_t)0x00000007) /*!< 0 bit  for pre-emption priority,
                                                                  4 bits for subpriority */
@@ -67,7 +107,9 @@ void Error_Handler(void);
 
 /* USER CODE END Private defines */
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __MAIN_H */
 
