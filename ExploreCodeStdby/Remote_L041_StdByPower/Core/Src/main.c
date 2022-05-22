@@ -4,15 +4,19 @@
   * @file           : main.c
   * @brief          : Main program body
   ******************************************************************************
-  * @attention
+  * TEST UART2 (FSK) :
   *
-  * <h2><center>&copy; Copyright (c) 2022 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * -> Emission testé à 38400 Bds avec une carte réseau capteur 4IS
+  * Pour l'utiliser, décommenter  #define UART_Emission.
+  * Le RT606 envoie en boucle une phrase (char Phrase[]="coucou !  ";)
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * -> Réception testée avec Module RT606 sur PC avec XCTU 9600Bds
+  * NB : la synthèse LL (ou même HALL) buggue. Elle met Rx en sortie push pull ...
+  * bug corrigé. Attention en input sur un périph, il faut fixer le mode en Altenate et pas input ! (voir conf PA3)
+  * Pour l'utiliser, décommenter #define UART_Reception.
+  * Le système est programmé en IT. A chaque IT une string se remplit :uint8_t ReceptString[55];
+  * A la détection de /CR ou au bout de 50 caractères, l'index revient à 0 et un flag de réception se lève.
+  *
   *
   ******************************************************************************
   */
@@ -37,11 +41,42 @@ void My_EnterStandbyMode(void);
 
 
 /*======================================================
+ * Define pour les divers tests
+ ======================================================*/
+//#define UART_Emission // émet en boucle à 38400 bds Phrase[]. Besoin d'une carte telecom 103 pour test
+#define UART_Reception  // 9600 bds Boucle infinie : attend /CR ou 50 caractères reçu dont /CR dans ReceptString[55];
+					    // test avec module PC
+
+
+
+
+/*======================================================
  * USART2 Test variables
  ======================================================*/
+// émission
 char Phrase[]="coucou !  ";
 char * PtrChar;
 
+// réception
+uint8_t ReceptString[55];
+int Indice;
+char Flag_RecStr;
+
+void USART2_IRQHandler(void)
+{
+
+	if ((LL_USART_ReceiveData8(USART2)==0x0D)|| (Indice==50))
+	{
+		Flag_RecStr=1;
+		ReceptString[Indice]=0; // null à la fin
+		Indice = 0;
+	}
+	else
+	{
+		ReceptString[Indice]=LL_USART_ReceiveData8(USART2);
+		Indice++;
+	}
+}
 
 /**
   * @brief  The application entry point.
@@ -72,15 +107,13 @@ int main(void)
    * USART2 Test and Boost
    ======================================================*/
 
+#ifdef UART_Emission
   //enable boost
    LL_GPIO_ResetOutputPin(nBoost_En_GPIO_Port, nBoost_En_Pin);
-
   // attendre 0.1 seconde pour établissement boost
   LL_mDelay(100);
   LL_GPIO_SetOutputPin(TxCmde_GPIO_Port, TxCmde_Pin);
   LL_GPIO_ResetOutputPin(RxCmde_GPIO_Port, RxCmde_Pin);
-
-
   while(1)
   {
 
@@ -93,6 +126,35 @@ int main(void)
 	  }
   }
   LL_GPIO_ResetOutputPin(TxCmde_GPIO_Port, TxCmde_Pin);
+
+#endif
+
+#ifdef UART_Reception
+  Indice=0;
+  Flag_RecStr=0;
+  //enable boost
+  LL_GPIO_ResetOutputPin(nBoost_En_GPIO_Port, nBoost_En_Pin);
+  // attendre 0.1 seconde pour établissement boost
+  LL_mDelay(100);
+  LL_GPIO_ResetOutputPin(TxCmde_GPIO_Port, TxCmde_Pin);
+  LL_GPIO_SetOutputPin(RxCmde_GPIO_Port, RxCmde_Pin);
+
+  while(1)
+  {
+	  if (Flag_RecStr==1)
+	  {
+
+	  }
+
+  }
+
+
+
+
+
+#endif
+
+
 
   /* Gestion des modes */
 
@@ -427,8 +489,9 @@ static void MX_USART2_UART_Init(void)
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   GPIO_InitStruct.Pin = LL_GPIO_PIN_3;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+  GPIO_InitStruct.Alternate = LL_GPIO_AF_4;
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 
@@ -437,9 +500,9 @@ static void MX_USART2_UART_Init(void)
   NVIC_EnableIRQ(USART2_IRQn);
 
   /* USER CODE BEGIN USART2_Init 1 */
-
+  LL_USART_EnableIT_RXNE(USART2);
   /* USER CODE END USART2_Init 1 */
-  USART_InitStruct.BaudRate = 38400;
+  USART_InitStruct.BaudRate = 9600;
   USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
   USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
   USART_InitStruct.Parity = LL_USART_PARITY_NONE;

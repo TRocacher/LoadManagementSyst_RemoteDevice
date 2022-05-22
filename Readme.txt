@@ -60,13 +60,18 @@ Le tout sur le proto n°1 fait pas José.
 
 
 ****************************
-35642cd   commit suivant
+2902111    
 /ExploreCodeStdby / Remote_L041_StdByPower
 
 Le programme fais une émission en boucle UART via FSK. Fonctionne à 38400 Bds, test en réception avec la carte tecom 103 de 4IS.
 OK.
 A faire réception.
 
+
+2902111 comit suivant
+Pgm en IT à 9600 Bds, émetteur = RT606 et PC via XCTU. 
+Voir main.c pour l'explication fin.
+A ce stade, RxCmde, TxCmde, CD, Tx, Rx testés.
 
 
 	

@@ -144,15 +144,15 @@ void SysTick_Handler(void)
 /**
   * @brief This function handles USART2 global interrupt / USART2 wake-up interrupt through EXTI line 26.
   */
-//void USART2_IRQHandler(void)
-//{
+void USART2_IRQHandler(void)
+{
   /* USER CODE BEGIN USART2_IRQn 0 */
 
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
 
   /* USER CODE END USART2_IRQn 1 */
-//}
+}
 
 /* USER CODE BEGIN 1 */
 

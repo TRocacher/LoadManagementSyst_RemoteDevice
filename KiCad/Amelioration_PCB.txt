@@ -23,3 +23,5 @@ Debugger SW
 - Ajouter nReset sur le connecteur SWD
 - Ajouter les résistances de 22 Ohm ? -> refaire la manip Nucleo-Nucleo pour voir
 - Enlever la pull up reset ? 
+
+RS485 ?
