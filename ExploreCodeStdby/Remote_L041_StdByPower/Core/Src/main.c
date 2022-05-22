@@ -51,7 +51,7 @@ void My_EnterStandbyMode(void);
 
 
 /*======================================================
- * USART2 Test variables
+ * USART2 Test variables / callback
  ======================================================*/
 // émission
 char Phrase[]="coucou !  ";
@@ -77,6 +77,34 @@ void USART2_IRQHandler(void)
 		Indice++;
 	}
 }
+
+/*======================================================
+ * User BP Test variables / callback
+ ======================================================*/
+void EXTI4_15_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI4_15_IRQn 0 */
+
+  /* USER CODE END EXTI4_15_IRQn 0 */
+  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_5) != RESET)
+  {
+    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_5);
+    /* USER CODE BEGIN LL_EXTI_LINE_5 */
+
+    /* USER CODE END LL_EXTI_LINE_5 */
+  }
+  /* USER CODE BEGIN EXTI4_15_IRQn 1 */
+
+  /* USER CODE END EXTI4_15_IRQn 1 */
+}
+
+
+
+
+
+
+
+
 
 /**
   * @brief  The application entry point.
@@ -381,6 +409,8 @@ static void MX_GPIO_Init(void)
 {
   LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
 
+  LL_EXTI_InitTypeDef EXTI_InitStruct= {0};
+
   /* GPIO Ports Clock Enable */
   LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOC);
   LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
@@ -453,6 +483,30 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   LL_GPIO_Init(CT_GPIO_Port, &GPIO_InitStruct);
+  
+  
+  
+  /* NOUVEAU user BP*/
+  LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTA, LL_SYSCFG_EXTI_LINE5);
+
+  /**/
+  LL_GPIO_SetPinPull(User_BP_GPIO_Port, User_BP_Pin, LL_GPIO_PULL_UP);
+
+  /**/
+  LL_GPIO_SetPinMode(User_BP_GPIO_Port, User_BP_Pin, LL_GPIO_MODE_INPUT);
+
+  /**/
+  EXTI_InitStruct.Line_0_31 = LL_EXTI_LINE_5;
+  EXTI_InitStruct.LineCommand = ENABLE;
+  EXTI_InitStruct.Mode = LL_EXTI_MODE_IT;
+  EXTI_InitStruct.Trigger = LL_EXTI_TRIGGER_FALLING;
+  LL_EXTI_Init(&EXTI_InitStruct);
+
+  /* EXTI interrupt init*/
+  NVIC_SetPriority(EXTI4_15_IRQn, 0);
+  NVIC_EnableIRQ(EXTI4_15_IRQn);
+  
+  
 
 }
 

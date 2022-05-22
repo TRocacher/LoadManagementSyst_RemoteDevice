@@ -68,10 +68,15 @@ OK.
 A faire réception.
 
 
-2902111 comit suivant
+62a0048 
+/ExploreCodeStdby / Remote_L041_StdByPower
 Pgm en IT à 9600 Bds, émetteur = RT606 et PC via XCTU. 
 Voir main.c pour l'explication fin.
 A ce stade, RxCmde, TxCmde, CD, Tx, Rx testés.
 
 
-	
+****************************	
+d6f5575
+/ExploreCodeStdby / Remote_L041_StdByPower
+Validation User BP en IT front descendant.
+
