@@ -76,7 +76,12 @@ A ce stade, RxCmde, TxCmde, CD, Tx, Rx testés.
 
 
 ****************************	
-d6f5575
+b0ee319 
 /ExploreCodeStdby / Remote_L041_StdByPower
 Validation User BP en IT front descendant.
 
+****************************
+Après b0ee319 
+ATTENTION CHANGEMENT REP ICI : /ExploreCodeStdby / BacASable_L041
+Validation ADC mais soucis sur l'alimentation. Parasite important rayonné et conduit (20mV 100k à 30k)
+qui parasite complètement l'ADC...

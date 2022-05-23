@@ -48,8 +48,11 @@ ErrorStatus MyErr;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_USART2_UART_Init(void);
+static void MX_ADC_Init(void);
+static void MX_TIM22_Init(void);
 /* USER CODE BEGIN PFP */
+
+short int Tab_DMA[64];
 
 /* USER CODE END PFP */
 
@@ -90,8 +93,68 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART2_UART_Init();
+  MX_ADC_Init();
+  MX_TIM22_Init();
   /* USER CODE BEGIN 2 */
+
+  // config EnBoost et config LED IR pour vérifier ADC trigg
+
+  /**/
+  /* GPIO Ports Clock Enable */
+  LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOC);
+  LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
+
+  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
+  GPIO_InitStruct.Pin = nBoost_En_Pin;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+  LL_GPIO_Init(nBoost_En_GPIO_Port, &GPIO_InitStruct);
+  //Enable boost
+  LL_GPIO_ResetOutputPin(nBoost_En_GPIO_Port, nBoost_En_Pin);
+
+   // Tx cmde = 1 pour lisser le 5V ..
+   /**/
+   GPIO_InitStruct.Pin = TxCmde_Pin;
+   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+   LL_GPIO_Init(TxCmde_GPIO_Port, &GPIO_InitStruct);
+   LL_GPIO_SetOutputPin(TxCmde_GPIO_Port, TxCmde_Pin);
+
+   /**/
+   GPIO_InitStruct.Pin = LED_IR_Pin;
+   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+   LL_GPIO_Init(LED_IR_GPIO_Port, &GPIO_InitStruct);
+
+
+/*
+  // Fin configuration DMA (adresse origin, dest)
+  LL_DMA_SetM2MSrcAddress(DMA1, LL_DMA_CHANNEL_1, ADC_BASE+0x40);
+  LL_DMA_SetM2MDstAddress(DMA1, LL_DMA_CHANNEL_1, (uint32_t)Tab_DMA);
+  // fixer CNT à 64 pour lancer une première fois
+  LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_1, 64);
+  // DMA enable
+  LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_1);
+*/
+
+   // validation IT locale
+   LL_ADC_EnableIT_EOC(ADC1);
+   // validation ADC
+  LL_ADC_Enable(ADC1);
+  // start ADC
+  LL_ADC_REG_StartConversion(ADC1);
+
+  //Lancement Timer 2
+  LL_TIM_EnableCounter(TIM22);
+
+
+
 
   /* USER CODE END 2 */
 
@@ -147,71 +210,120 @@ void SystemClock_Config(void)
   LL_Init1msTick(24000000);
 
   LL_SetSystemCoreClock(24000000);
-  LL_RCC_SetUSARTClockSource(LL_RCC_USART2_CLKSOURCE_PCLK1);
 }
 
 /**
-  * @brief USART2 Initialization Function
+  * @brief ADC Initialization Function
   * @param None
   * @retval None
   */
-static void MX_USART2_UART_Init(void)
+static void MX_ADC_Init(void)
 {
 
-  /* USER CODE BEGIN USART2_Init 0 */
+  /* USER CODE BEGIN ADC_Init 0 */
 
-  /* USER CODE END USART2_Init 0 */
+  /* USER CODE END ADC_Init 0 */
 
-  LL_USART_InitTypeDef USART_InitStruct = {0};
+  LL_ADC_REG_InitTypeDef ADC_REG_InitStruct = {0};
+  LL_ADC_InitTypeDef ADC_InitStruct = {0};
 
   LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* Peripheral clock enable */
-  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2);
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_ADC1);
 
   LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
-  /**USART2 GPIO Configuration
-  PA2   ------> USART2_TX
-  PA3   ------> USART2_RX
+  /**ADC GPIO Configuration
+  PA6   ------> ADC_IN6
   */
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_2;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_6;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  GPIO_InitStruct.Alternate = LL_GPIO_AF_4;
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_3;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  GPIO_InitStruct.Alternate = LL_GPIO_AF_4;
-  MyErr=LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  /* ADC interrupt Init */
+  NVIC_SetPriority(ADC1_COMP_IRQn, 0);
+  NVIC_EnableIRQ(ADC1_COMP_IRQn);
 
-  /* USART2 interrupt Init */
-  NVIC_SetPriority(USART2_IRQn, 0);
-  NVIC_EnableIRQ(USART2_IRQn);
+  /* USER CODE BEGIN ADC_Init 1 */
 
-  /* USER CODE BEGIN USART2_Init 1 */
+  /* USER CODE END ADC_Init 1 */
+  /** Configure Regular Channel
+  */
+  LL_ADC_REG_SetSequencerChAdd(ADC1, LL_ADC_CHANNEL_6);
+  /** Common config
+  */
+  ADC_REG_InitStruct.TriggerSource = LL_ADC_REG_TRIG_EXT_TIM22_TRGO;
+  ADC_REG_InitStruct.SequencerDiscont = LL_ADC_REG_SEQ_DISCONT_DISABLE;
+  ADC_REG_InitStruct.ContinuousMode = LL_ADC_REG_CONV_SINGLE;
+  ADC_REG_InitStruct.DMATransfer = LL_ADC_REG_DMA_TRANSFER_NONE;
+  ADC_REG_InitStruct.Overrun = LL_ADC_REG_OVR_DATA_OVERWRITTEN;
+  LL_ADC_REG_Init(ADC1, &ADC_REG_InitStruct);
+  LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_1CYCLE_5);
+  LL_ADC_SetOverSamplingScope(ADC1, LL_ADC_OVS_DISABLE);
+  LL_ADC_REG_SetSequencerScanDirection(ADC1, LL_ADC_REG_SEQ_SCAN_DIR_FORWARD);
+  LL_ADC_SetCommonFrequencyMode(__LL_ADC_COMMON_INSTANCE(ADC1), LL_ADC_CLOCK_FREQ_MODE_HIGH);
+  LL_ADC_DisableIT_EOC(ADC1);
+  LL_ADC_DisableIT_EOS(ADC1);
+  ADC_InitStruct.Resolution = LL_ADC_RESOLUTION_12B;
+  ADC_InitStruct.DataAlignment = LL_ADC_DATA_ALIGN_RIGHT;
+  ADC_InitStruct.LowPowerMode = LL_ADC_LP_MODE_NONE;
+  LL_ADC_Init(ADC1, &ADC_InitStruct);
+  LL_ADC_SetClock(ADC1, LL_ADC_CLOCK_ASYNC);
+  LL_ADC_REG_SetTriggerEdge(ADC1, LL_ADC_REG_TRIG_EXT_RISING);
 
-  /* USER CODE END USART2_Init 1 */
-  USART_InitStruct.BaudRate = 9600;
-  USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
-  USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
-  USART_InitStruct.Parity = LL_USART_PARITY_NONE;
-  USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
-  USART_InitStruct.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
-  USART_InitStruct.OverSampling = LL_USART_OVERSAMPLING_16;
-  LL_USART_Init(USART2, &USART_InitStruct);
-  LL_USART_DisableOverrunDetect(USART2);
-  LL_USART_DisableDMADeactOnRxErr(USART2);
-  LL_USART_ConfigAsyncMode(USART2);
-  LL_USART_Enable(USART2);
-  /* USER CODE BEGIN USART2_Init 2 */
+  /* Enable ADC internal voltage regulator */
+  LL_ADC_EnableInternalRegulator(ADC1);
+  /* Delay for ADC internal voltage regulator stabilization. */
+  /* Compute number of CPU cycles to wait for, from delay in us. */
+  /* Note: Variable divided by 2 to compensate partially */
+  /* CPU processing cycles (depends on compilation optimization). */
+  /* Note: If system core clock frequency is below 200kHz, wait time */
+  /* is only a few CPU processing cycles. */
+  uint32_t wait_loop_index;
+  wait_loop_index = ((LL_ADC_DELAY_INTERNAL_REGUL_STAB_US * (SystemCoreClock / (100000 * 2))) / 10);
+  while(wait_loop_index != 0)
+  {
+    wait_loop_index--;
+  }
+  /* USER CODE BEGIN ADC_Init 2 */
 
-  /* USER CODE END USART2_Init 2 */
+  /* USER CODE END ADC_Init 2 */
+
+}
+
+/**
+  * @brief TIM22 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM22_Init(void)
+{
+
+  /* USER CODE BEGIN TIM22_Init 0 */
+
+  /* USER CODE END TIM22_Init 0 */
+
+  LL_TIM_InitTypeDef TIM_InitStruct = {0};
+
+  /* Peripheral clock enable */
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM22);
+
+  /* USER CODE BEGIN TIM22_Init 1 */
+
+  /* USER CODE END TIM22_Init 1 */
+  TIM_InitStruct.Prescaler = 0;
+  TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
+  TIM_InitStruct.Autoreload = 374;
+  TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
+  LL_TIM_Init(TIM22, &TIM_InitStruct);
+  LL_TIM_DisableARRPreload(TIM22);
+  LL_TIM_SetClockSource(TIM22, LL_TIM_CLOCKSOURCE_INTERNAL);
+  LL_TIM_SetTriggerOutput(TIM22, LL_TIM_TRGO_UPDATE);
+  LL_TIM_DisableMasterSlaveMode(TIM22);
+  /* USER CODE BEGIN TIM22_Init 2 */
+
+  /* USER CODE END TIM22_Init 2 */
 
 }
 

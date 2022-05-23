@@ -142,16 +142,23 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-  * @brief This function handles USART2 global interrupt / USART2 wake-up interrupt through EXTI line 26.
+  * @brief This function handles ADC, COMP1 and COMP2 interrupts (COMP interrupts through EXTI lines 21 and 22).
   */
-void USART2_IRQHandler(void)
+
+short int Resu_ADC;
+void ADC1_COMP_IRQHandler(void)
 {
-  /* USER CODE BEGIN USART2_IRQn 0 */
+  /* USER CODE BEGIN ADC1_COMP_IRQn 0 */
+  Resu_ADC = LL_ADC_REG_ReadConversionData12(ADC1);
+  LL_GPIO_SetOutputPin(LED_IR_GPIO_Port,LED_IR_Pin);
 
-  /* USER CODE END USART2_IRQn 0 */
-  /* USER CODE BEGIN USART2_IRQn 1 */
 
-  /* USER CODE END USART2_IRQn 1 */
+  LL_GPIO_ResetOutputPin(LED_IR_GPIO_Port,LED_IR_Pin);
+  /* USER CODE END ADC1_COMP_IRQn 0 */
+
+  /* USER CODE BEGIN ADC1_COMP_IRQn 1 */
+
+  /* USER CODE END ADC1_COMP_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

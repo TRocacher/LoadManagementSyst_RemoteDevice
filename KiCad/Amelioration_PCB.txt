@@ -8,6 +8,8 @@ pb alignement module HF
 Superposer Xbee + RT606 ?
 pas de pull up sur nRST
 
+!! mettre du gain pour saturer AOP LED IR de manière à avoir 5V max et pas 3.
+
 !! anti inversion à PMOS sur les piles !!
 !! pull up du l'I2C 10k
 
@@ -25,3 +27,7 @@ Debugger SW
 - Enlever la pull up reset ? 
 
 RS485 ?
+
+AJOUTER 1k et 10u pour filtre alime 5V vers micro et Temp sensor et AOP (étudier impact).
+
+PB 38 kHz et même 110 kHz sur bruit découpage, partout sur le masse etc...
