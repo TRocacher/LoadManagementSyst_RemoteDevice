@@ -4,7 +4,7 @@ Revoir limites, et pads externes : augmenter le rayon de courbure
 pads apparents, option...
 
 pb alignement module HF
-
+check GDS sur les MOS
 
 
 
