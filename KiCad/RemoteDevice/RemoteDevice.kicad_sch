@@ -3017,7 +3017,7 @@
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid 02497bb0-4fe7-4a29-8b9d-74b1503df818)
     (property "Reference" "R4" (id 0) (at 151.13 158.75 90))
-    (property "Value" "47" (id 1) (at 151.13 161.29 90))
+    (property "Value" "150" (id 1) (at 151.13 161.29 90))
     (property "Footprint" "Resistor_SMD:R_1206_3216Metric" (id 2) (at 151.13 166.878 90)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -4165,7 +4165,7 @@
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid 8cafa459-24f7-4ce5-bcef-ea1229a57da8)
     (property "Reference" "R12" (id 0) (at 194.31 115.57 90))
-    (property "Value" "4.7k" (id 1) (at 194.31 118.11 90))
+    (property "Value" "1k" (id 1) (at 194.31 118.11 90))
     (property "Footprint" "Resistor_SMD:R_1206_3216Metric" (id 2) (at 194.31 123.698 90)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -4273,7 +4273,7 @@
     (property "Reference" "C17" (id 0) (at 189.23 129.5399 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "10n" (id 1) (at 189.23 132.0799 0)
+    (property "Value" "47n" (id 1) (at 189.23 132.0799 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Capacitor_SMD:C_1206_3216Metric" (id 2) (at 186.3852 134.62 0)
@@ -4699,7 +4699,7 @@
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid d46aace0-661d-49a9-9148-e3b2e1caa4bf)
     (property "Reference" "R10" (id 0) (at 265.43 35.56 90))
-    (property "Value" "100k" (id 1) (at 265.43 38.1 90))
+    (property "Value" "22k" (id 1) (at 265.43 38.1 90))
     (property "Footprint" "Resistor_SMD:R_1206_3216Metric" (id 2) (at 265.43 40.132 90)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -4861,7 +4861,7 @@
     (property "Reference" "C14" (id 0) (at 276.86 46.9899 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "10n" (id 1) (at 276.86 49.5299 0)
+    (property "Value" "47n" (id 1) (at 276.86 49.5299 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Capacitor_SMD:C_1206_3216Metric" (id 2) (at 274.0152 52.07 0)
@@ -5227,7 +5227,7 @@
       (reference "C13") (unit 1) (value "10u") (footprint "Capacitor_Tantalum_SMD:CP_EIA-7132-20_AVX-U")
     )
     (path "/f2c5cc7f-598c-4c67-9e48-e6ce6b8a1303"
-      (reference "C14") (unit 1) (value "10n") (footprint "Capacitor_SMD:C_1206_3216Metric")
+      (reference "C14") (unit 1) (value "47n") (footprint "Capacitor_SMD:C_1206_3216Metric")
     )
     (path "/0a05c4db-2c3d-4165-8365-666c36e5816b"
       (reference "C15") (unit 1) (value "10u") (footprint "Capacitor_SMD:C_1812_4532Metric")
@@ -5236,7 +5236,7 @@
       (reference "C16") (unit 1) (value "100n") (footprint "Capacitor_SMD:C_1206_3216Metric")
     )
     (path "/975c6117-9330-4e23-be93-b7258cda7016"
-      (reference "C17") (unit 1) (value "10n") (footprint "Capacitor_SMD:C_1206_3216Metric")
+      (reference "C17") (unit 1) (value "47n") (footprint "Capacitor_SMD:C_1206_3216Metric")
     )
     (path "/24328120-84e9-42eb-a4f4-5b935ef17915"
       (reference "C18") (unit 1) (value "10u") (footprint "Capacitor_Tantalum_SMD:CP_EIA-7132-20_AVX-U")
@@ -5290,7 +5290,7 @@
       (reference "R3") (unit 1) (value "10k") (footprint "Resistor_SMD:R_1206_3216Metric")
     )
     (path "/02497bb0-4fe7-4a29-8b9d-74b1503df818"
-      (reference "R4") (unit 1) (value "47") (footprint "Resistor_SMD:R_1206_3216Metric")
+      (reference "R4") (unit 1) (value "150") (footprint "Resistor_SMD:R_1206_3216Metric")
     )
     (path "/e7c9eb43-7690-4c06-b31b-5c56ae2d664f"
       (reference "R5") (unit 1) (value "220k") (footprint "Resistor_SMD:R_1206_3216Metric")
@@ -5308,13 +5308,13 @@
       (reference "R9") (unit 1) (value "10k") (footprint "Resistor_SMD:R_1206_3216Metric")
     )
     (path "/d46aace0-661d-49a9-9148-e3b2e1caa4bf"
-      (reference "R10") (unit 1) (value "100k") (footprint "Resistor_SMD:R_1206_3216Metric")
+      (reference "R10") (unit 1) (value "22k") (footprint "Resistor_SMD:R_1206_3216Metric")
     )
     (path "/8ad0ce48-64b5-4271-80f5-23251314bbaa"
       (reference "R11") (unit 1) (value "2.2k") (footprint "Resistor_SMD:R_1206_3216Metric")
     )
     (path "/8cafa459-24f7-4ce5-bcef-ea1229a57da8"
-      (reference "R12") (unit 1) (value "4.7k") (footprint "Resistor_SMD:R_1206_3216Metric")
+      (reference "R12") (unit 1) (value "1k") (footprint "Resistor_SMD:R_1206_3216Metric")
     )
     (path "/1fa3e610-db57-449d-8acc-dccd514b7896"
       (reference "R13") (unit 1) (value "2.2k") (footprint "Resistor_SMD:R_1206_3216Metric")
