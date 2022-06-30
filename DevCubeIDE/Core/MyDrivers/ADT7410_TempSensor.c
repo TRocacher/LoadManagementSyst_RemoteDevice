@@ -19,7 +19,7 @@ void ADT7410_Init(void)
 {
 	uint8_t ConfRegVal;
 	ConfRegVal=ConfReg_Reso_16;
-	ConfRegVal|=ConfReg_Mode_Shutdown;
+	ConfRegVal|=ConfReg_Mode_OneShot;
 
 	data[0]=ConfRegAdr;
 	data[1]=ConfRegVal;
